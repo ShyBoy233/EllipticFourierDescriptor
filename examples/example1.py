@@ -24,5 +24,5 @@ print(coeffs)
 
 # backward elliptic Fourier and plot reconstructed contour
 reconstructed_contour = efDescriptor.backward(M=4096) # M determines how many points of the reconstructed contour
-cv2.drawContours(img, np.around(reconstructed_contour).astype(np.int32).reshape((-1,1,2)), -1, (0, 0, 255), 2, cv2.LINE_AA)
+cv2.drawContours(img, np.around(reconstructed_contour).astype(np.int32).reshape((-1,1,2)), -1, (0, 0, 255), 5, cv2.LINE_AA)
 cv2.imwrite("example1.jpg", img)

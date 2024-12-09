@@ -26,6 +26,6 @@ if not os.path.exists(dst):
 for num in range(1, 100+1):
     reconstructed_contour = efDescriptor.backward(M=4096, modeStart=1, modeNum=num)
     raw_img = img = cv2.imread(img_src)
-    cv2.drawContours(raw_img, np.around(reconstructed_contour).astype(np.int32).reshape((-1,1,2)), -1, (0, 0, 255), 2, cv2.LINE_AA)
+    cv2.drawContours(raw_img, np.around(reconstructed_contour).astype(np.int32).reshape((-1,1,2)), -1, (0, 0, 255), 5, cv2.LINE_AA)
     image_with_text = cv2.putText(raw_img, f"Mode numbers: {num}", (5,25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2, cv2.LINE_AA)
     cv2.imwrite(os.path.join(dst, f"img_{num:0>4}.jpg"), raw_img)
