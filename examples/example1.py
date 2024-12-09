@@ -16,7 +16,7 @@ contour = np.squeeze(contours[0])
 # forward elliptic Fourier
 efDescriptor = EllipticFourier()
 
-A0, C0, coeffs = efDescriptor.forward(contour=contour, N=10)
+A0, C0, coeffs = efDescriptor.forward(contour=contour, N=10) # describe contour with 10 coefficients
 print(f"A0: {A0}")
 print(f"C0: {C0}")
 print("Coefficients:")
