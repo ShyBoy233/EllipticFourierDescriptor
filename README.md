@@ -68,7 +68,9 @@ Coefficients:
 ## 3.2 Reconstruct contour with different numbers of coefficients
 Reconstruct contour with different numbers of coefficients. The more numbers of coefficients, the more accurate the reconstructed contour. All the reconstructed contour overlay on images were saved in directory named example2.
 
-<img src="imgs/img2.gif" alt="Image 2" width="70%" height="70%">
+<p align="center">
+<img src="imgs/img2.gif" alt="Image 2" width="50%" height="50%">
+</p>
 
 ```python
 import os
@@ -105,6 +107,50 @@ for num in range(1, 100+1):
 ```
 
 [Link to codes file.](examples/example2.py)
+
+## 3.3 Translation, start point, rotation and scale invariance
+3 same shapes of SpongeBob were parameterized using elliptic Fourier descriptor. The coefficients of them are almost the same due to the existence of margin error.
+
+<img src="imgs/img3.jpg" alt="Image 3">
+
+```python
+import numpy as np
+import cv2
+
+from EllipticFourier import EllipticFourier
+
+def extract_contour(img_src):
+    # load an image
+    img = cv2.imread(img_src)
+
+    # extract image contour
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) # conver to gray image
+    _, binary = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY_INV) # threshold to get binary image. Note that in the example image, the forground is back, thus we use cv2.THRESH_BINARY_INV.
+    contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE) # find all possible contours
+    contour = np.squeeze(contours[0])
+    return contour
+
+contour = extract_contour("SpongeBob.jpg")
+contour1 = extract_contour("SpongeBob1.jpg")
+contour2 = extract_contour("SpongeBob2.jpg")
+
+efDescriptor = EllipticFourier()
+
+efDescriptor.forward(contour=contour, N=100)
+coeffs = efDescriptor.normalize(rotation=True, scale=True)
+
+efDescriptor.forward(contour=contour1, N=100)
+coeffs1 = efDescriptor.normalize(rotation=True, scale=True)
+
+efDescriptor.forward(contour=contour2, N=100)
+coeffs2 = efDescriptor.normalize(rotation=True, scale=True)
+
+np.savetxt("coeffs.txt", coeffs)
+np.savetxt("coeffs1.txt", coeffs1)
+np.savetxt("coeffs2.txt", coeffs2)
+```
+
+[Link to coeds file.](examples/example3.py)
 
 # 4 References
 1. Frank P Kuhl, Charles R Giardina, Elliptic Fourier features of a closed contour, Computer Graphics and Image Processing, Volume 18, Issue 3, 1982, Pages 236-258. https://doi.org/10.1016/0146-664X(82)90034-X
