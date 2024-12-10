@@ -68,6 +68,8 @@ Coefficients:
 ## 3.2 Reconstruct contour with different numbers of coefficients
 Reconstruct contour with different numbers of coefficients. The more numbers of coefficients, the more accurate the reconstructed contour. All the reconstructed contour overlay on images were saved in directory named example2.
 
+![Image 2](imgs/img2.gif)
+
 ```python
 import os
 import numpy as np
