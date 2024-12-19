@@ -10,7 +10,7 @@ class EllipticFourier():
         """Calculate elliptic Fourier coefficients of a closed contour.
 
         Args:
-            contour (array, [N, 2]): A closed contour having N points
+            contour (array, [N, 2]): A closed contour having N points。
             N (int, optional): The number of coefficients to decompose. Defaults to 64.
 
         Returns:
@@ -126,3 +126,45 @@ class EllipticFourier():
             coeffs *= s
 
         return coeffs
+
+    def error(self, contour, N=200):
+        """Analysis the error between constructed and original contour.
+
+        Args:
+            contour (array, [N, 2]): A closed contour having N points.
+            N (int, optional): Number of modes. Defaults to 200.
+
+        Returns:
+            array, [N]: Errors reconstructed with different modes.
+        """
+        # make contour closed, v0 v1 v2 ... v_M-1 v0
+        contour_closed = np.concatenate([contour, contour[[0],:]], axis=0) # [M+1, 2]
+        x_p = contour_closed[:,0] # [M+1]
+        y_p = contour_closed[:,1] # [M+1]
+        dx_p = np.diff(x_p) # [M]
+        dy_p = np.diff(y_p) # [M]
+        dt_p = np.sqrt(dx_p**2 + dy_p**2) # [M]
+        t_p = np.concatenate([[0], np.cumsum(dt_p)], axis=0) # [M+1]
+        T = t_p[-1] # total length of curve
+        n = np.arange(1, N+1).reshape((-1, 1)) # [N, 1]
+
+        # calculate A0 and C0
+        A0 = 1/T*np.sum((x_p[1:]+x_p[:-1])/2*dt_p)
+        C0 = 1/T*np.sum((y_p[1:]+y_p[:-1])/2*dt_p)
+
+        # calculate coefficients
+        an = T/(2*n**2*np.pi**2)*np.sum(dx_p/dt_p*(np.cos(2*n*np.pi*t_p[1:]/T)-np.cos(2*n*np.pi*t_p[:-1]/T)), axis=1, keepdims=True)
+        bn = T/(2*n**2*np.pi**2)*np.sum(dx_p/dt_p*(np.sin(2*n*np.pi*t_p[1:]/T)-np.sin(2*n*np.pi*t_p[:-1]/T)), axis=1, keepdims=True)
+        cn = T/(2*n**2*np.pi**2)*np.sum(dy_p/dt_p*(np.cos(2*n*np.pi*t_p[1:]/T)-np.cos(2*n*np.pi*t_p[:-1]/T)), axis=1, keepdims=True)
+        dn = T/(2*n**2*np.pi**2)*np.sum(dy_p/dt_p*(np.sin(2*n*np.pi*t_p[1:]/T)-np.sin(2*n*np.pi*t_p[:-1]/T)), axis=1, keepdims=True)
+
+        error = []
+        t = t_p/T
+        x_t = A0
+        y_t = C0
+        for modeNum in range(1, N+1):
+            x_t += an[modeNum-1]*np.cos(2*modeNum*np.pi*t)+bn[modeNum-1]*np.sin(2*modeNum*np.pi*t)
+            y_t += cn[modeNum-1]*np.cos(2*modeNum*np.pi*t)+dn[modeNum-1]*np.sin(2*modeNum*np.pi*t)
+            error.append(np.mean(np.sqrt((x_t[:-1]-x_p[:-1])**2+(y_t[:-1]-y_p[:-1])**2)))
+
+        return np.array(error)
